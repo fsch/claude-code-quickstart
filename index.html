@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLAUDE CODE // VIBE CODING</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --amber: #e8a634;
+    --amber-bright: #ffc847;
+    --amber-dim: rgba(232, 166, 52, 0.12);
+    --cyan: #38bdf8;
+    --cyan-dim: rgba(56, 189, 248, 0.10);
+    --rose: #fb7185;
+    --surface: #0c0c10;
+    --surface-raised: #131318;
+    --surface-overlay: rgba(19, 19, 24, 0.85);
+    --text: #c8c8d0;
+    --text-muted: #6b6b78;
+    --border: rgba(255, 255, 255, 0.06);
+    --border-hover: rgba(232, 166, 52, 0.25);
+    --radius: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--surface);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Grain overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.5;
+  }
+
+  /* Ambient glow blobs */
+  .glow-top {
+    position: fixed;
+    top: -30vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80vw;
+    height: 60vh;
+    background: radial-gradient(ellipse at center, rgba(232, 166, 52, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-bottom {
+    position: fixed;
+    bottom: -20vh;
+    right: -10vw;
+    width: 60vw;
+    height: 50vh;
+    background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Container */
+  .container {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 0 1.5rem 6rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Reveal animations */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    padding: 8rem 0 6rem;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--amber);
+    border: 1px solid var(--amber-dim);
+    border-radius: 100px;
+    padding: 0.4em 1.4em;
+    margin-bottom: 2.5rem;
+    background: rgba(232, 166, 52, 0.04);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2.8rem, 8vw, 5rem);
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  h1 span {
+    display: block;
+    background: linear-gradient(135deg, var(--amber-bright), var(--amber), var(--rose));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    max-width: 400px;
+    margin: 1.5rem auto 0;
+    line-height: 1.8;
+  }
+
+  .hero-sub strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .cursor-blink {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: var(--amber);
+    margin-left: 4px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* ========== SECTION HEADINGS ========== */
+  .section {
+    margin-top: 5rem;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin: 2.5rem 0 1rem;
+  }
+
+  /* ========== CARDS / PANELS ========== */
+  .panel {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.75rem;
+    margin: 1.25rem 0;
+    position: relative;
+    transition: border-color 0.3s ease;
+  }
+
+  .panel:hover {
+    border-color: var(--border-hover);
+  }
+
+  .panel--accent {
+    border-left: 3px solid var(--amber);
+    padding-left: 1.75rem;
+  }
+
+  .panel--cyan {
+    border-left: 3px solid var(--cyan);
+  }
+
+  /* ========== SETUP ========== */
+  .setup-steps {
+    list-style: none;
+    counter-reset: steps;
+    padding: 0;
+  }
+
+  .setup-steps li {
+    counter-increment: steps;
+    position: relative;
+    padding-left: 2.5rem;
+    margin-bottom: 1.2rem;
+    line-height: 1.7;
+  }
+
+  .setup-steps li::before {
+    content: counter(steps);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--amber);
+    width: 1.6rem;
+    height: 1.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--amber-dim);
+    border-radius: 4px;
+    background: rgba(232, 166, 52, 0.04);
+  }
+
+  .setup-steps strong {
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* ========== INLINE CODE ========== */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    background: rgba(232, 166, 52, 0.08);
+    border: 1px solid rgba(232, 166, 52, 0.1);
+    border-radius: 4px;
+    padding: 0.15em 0.45em;
+    color: var(--amber-bright);
+  }
+
+  .code-block {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    margin: 0.75rem 0;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--amber-bright);
+  }
+
+  /* ========== HOW IT WORKS ========== */
+  .how-box {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(232, 166, 52, 0.03), rgba(56, 189, 248, 0.02));
+    position: relative;
+  }
+
+  .how-box p {
+    font-size: 1rem;
+    line-height: 2;
+    color: var(--text);
+  }
+
+  .how-box strong {
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .how-box .highlight {
+    color: var(--amber-bright);
+    font-weight: 500;
+  }
+
+  /* ========== TIMELINE ========== */
+  .timeline {
+    position: relative;
+    padding-left: 2.5rem;
+    margin-top: 2rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    bottom: 8px;
+    width: 1px;
+    background: linear-gradient(180deg, var(--amber), var(--cyan), var(--rose), transparent);
+  }
+
+  .tl-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+  }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -2.5rem;
+    top: 8px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid var(--amber);
+    background: var(--surface);
+    z-index: 1;
+    transition: background 0.3s, box-shadow 0.3s;
+  }
+
+  .tl-item:hover::before {
+    background: var(--amber);
+    box-shadow: 0 0 12px rgba(232, 166, 52, 0.4);
+  }
+
+  .tl-time {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 0.6rem;
+  }
+
+  .tl-item p {
+    margin-bottom: 0.5rem;
+  }
+
+  .prompt {
+    background: rgba(0, 0, 0, 0.35);
+    border-left: 2px solid var(--cyan);
+    padding: 0.6rem 1rem;
+    margin: 0.6rem 0;
+    color: var(--cyan);
+    font-size: 0.85rem;
+    font-style: italic;
+    line-height: 1.6;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* ========== TABLES ========== */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-raised);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  th {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 1rem 1.25rem;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  tr:hover td {
+    background: rgba(232, 166, 52, 0.02);
+  }
+
+  td:first-child {
+    color: var(--cyan);
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  /* ========== PLUGIN INSTALL ========== */
+  .plugin-install {
+    background: linear-gradient(135deg, rgba(56, 189, 248, 0.05), rgba(232, 166, 52, 0.03));
+    border: 1px solid rgba(56, 189, 248, 0.12);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .plugin-install::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--amber), var(--cyan));
+  }
+
+  .plugin-install h3 {
+    margin-top: 0;
+  }
+
+  .plugin-install p {
+    margin: 1rem 0;
+    line-height: 1.7;
+  }
+
+  /* ========== SLASH COMMANDS SECTION ========== */
+  .slash-section {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    margin: 2rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .slash-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--amber), var(--cyan), var(--rose));
+  }
+
+  .slash-section h2 {
+    margin-bottom: 0.75rem;
+  }
+
+  .slash-section > p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .slash-modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+
+  .slash-mode {
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    text-align: center;
+    transition: border-color 0.3s, transform 0.25s, background 0.3s;
+    cursor: default;
+  }
+
+  .slash-mode:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+    background: rgba(232, 166, 52, 0.02);
+  }
+
+  .slash-mode .mode-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 0.5rem;
+  }
+
+  .slash-mode .mode-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .slash-mode .mode-desc code {
+    font-size: 0.78rem;
+  }
+
+  /* ========== TIPS ========== */
+  .tips {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .tip {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-raised);
+    transition: border-color 0.3s, transform 0.25s;
+    align-items: flex-start;
+  }
+
+  .tip:hover {
+    border-color: var(--border-hover);
+    transform: translateX(4px);
+  }
+
+  .tip-num {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--amber);
+    opacity: 0.2;
+    flex-shrink: 0;
+    min-width: 2.5rem;
+    user-select: none;
+  }
+
+  .tip-body strong {
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .tip-body em {
+    color: var(--amber-bright);
+    font-style: italic;
+  }
+
+  /* ========== DIVIDER ========== */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+    margin: 4rem 0;
+  }
+
+  /* ========== FOOTER ========== */
+  footer {
+    text-align: center;
+    padding: 4rem 0 2rem;
+    position: relative;
+  }
+
+  footer .footer-line {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 2rem;
+  }
+
+  footer p {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    opacity: 0.4;
+  }
+
+  /* ========== MOBILE ========== */
+  @media (max-width: 640px) {
+    .container { padding: 0 1rem 4rem; }
+    .hero { padding: 5rem 0 4rem; }
+    h1 { font-size: clamp(2.2rem, 10vw, 3.5rem); }
+    .slash-section { padding: 1.5rem; }
+    .slash-modes { grid-template-columns: 1fr; }
+    table { font-size: 0.8rem; }
+    th, td { padding: 0.6rem 0.8rem; }
+    .timeline { padding-left: 2rem; }
+    .tl-item::before { left: -2rem; width: 11px; height: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-top"></div>
+<div class="glow-bottom"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero reveal">
+    <div class="hero-badge">Workshop Guide</div>
+    <h1>Claude Code<span>Vibe Coding</span></h1>
+    <p class="hero-sub">You talk. The computer builds.<br><strong>No coding knowledge needed.</strong><span class="cursor-blink"></span></p>
+  </div>
+
+  <!-- SETUP -->
+  <div class="section reveal">
+    <div class="section-label">Getting Started</div>
+    <h2>Setup</h2>
+    <div class="panel panel--accent">
+      <ol class="setup-steps">
+        <li>Open your <strong>terminal</strong> (search your computer for "Terminal")</li>
+        <li>Type this and press Enter:
+          <span class="code-block">mkdir my-app && cd my-app && claude</span>
+        </li>
+        <li>You're in. <strong>Start talking.</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="section reveal">
+    <div class="section-label">The Method</div>
+    <h2>How It Works</h2>
+    <div class="how-box">
+      <p>You describe what you want <strong>like you'd tell a friend</strong>.<br>
+      Claude builds it. You say what to change. Repeat.<br><br>
+      <span class="highlight">That's it. That's the whole method.</span></p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TIMELINE -->
+  <div class="section reveal">
+    <div class="section-label">The Process</div>
+    <h2>Your 60 Minutes</h2>
+    <div class="timeline">
+
+      <div class="tl-item reveal">
+        <div class="tl-time">Minutes 1 &ndash; 5 // Describe Your Dream App</div>
+        <div class="prompt">"Build me a personal recipe app. I want to add recipes with a name, ingredients, and steps. Make it look clean and modern with a dark theme."</div>
+        <p>Be specific about what you <strong style="color:#fff;font-weight:500">want</strong>, not how to build it. Think product owner, not programmer.</p>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-time">Minutes 5 &ndash; 20 // Watch It Build, Then React</div>
+        <p>Claude will ask permission to create files &mdash; just press <code>y</code>.</p>
+        <p>When it's done, look at it and say what you think:</p>
+        <div class="prompt">"The font is too small. Make the cards rounder. Add a search bar at the top."</div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-time">Minutes 20 &ndash; 45 // Keep Pushing</div>
+        <p>This is where it gets fun. Just keep asking for more:</p>
+        <div class="prompt">"Add a way to mark recipes as favorites"</div>
+        <div class="prompt">"Make it work on mobile"</div>
+        <div class="prompt">"Add a random recipe button that picks dinner for me"</div>
+        <div class="prompt">"The colors are ugly, make it feel more like a cozy cookbook"</div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-time">Minutes 45 &ndash; 55 // Polish</div>
+        <div class="prompt">"Something feels off about the layout, make it nicer"</div>
+        <div class="prompt">"Add a little animation when I add a new recipe"</div>
+        <div class="prompt">"The empty state is boring, add a friendly message when there are no recipes yet"</div>
+      </div>
+
+      <div class="tl-item reveal">
+        <div class="tl-time">Minutes 55 &ndash; 60 // Admire Your Work</div>
+        <p>You just built an app. Screenshot it. Show someone.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CHEATSHEET -->
+  <div class="section reveal">
+    <div class="section-label">Quick Reference</div>
+    <h2>Cheatsheet</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>You want to&hellip;</th><th>Say&hellip;</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Start over</td><td><code>/clear</code> then describe again</td></tr>
+          <tr><td>Undo something</td><td>"undo that last change"</td></tr>
+          <tr><td>See it</td><td>"how do I open this in my browser?"</td></tr>
+          <tr><td>Change the look</td><td>"make it more [cozy / minimal / bold / playful]"</td></tr>
+          <tr><td>Add a feature</td><td>just describe it in plain words</td></tr>
+          <tr><td>Something broke</td><td>"something broke, fix it"</td></tr>
+          <tr><td>Exit</td><td>press <code>Ctrl+C</code> twice</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- PLUGIN INSTALL -->
+  <div class="section reveal">
+    <div class="plugin-install">
+      <h3>Install the Compound Engineering Plugin</h3>
+      <p>These slash commands come from the <strong style="color:#fff;font-weight:500">Compound Engineering</strong> plugin by <strong style="color:#fff;font-weight:500">Every</strong>. To install it:</p>
+      <ol class="setup-steps">
+        <li>Open Claude Code in your terminal</li>
+        <li>Type <code>/install-plugin</code> and press Enter</li>
+        <li>Enter the plugin URL:
+          <span class="code-block">https://github.com/nichochar/compound-engineering</span>
+        </li>
+        <li>Restart Claude Code &mdash; you're good to go!</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- SLASH COMMANDS -->
+  <div class="section reveal">
+    <div class="slash-section">
+      <div class="section-label">Power Tools</div>
+      <h2>Slash Commands</h2>
+      <p>When you want Claude to be more structured instead of just winging it, use these. Type them exactly as shown.</p>
+
+      <div class="table-wrap" style="border:none;background:transparent;">
+        <table>
+          <thead>
+            <tr><th>Command</th><th>When to use it</th><th>Example</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>/ce:brainstorm</code></td>
+              <td>You have a fuzzy idea and want to think it through</td>
+              <td><code>/ce:brainstorm I want some kind of habit tracker</code></td>
+            </tr>
+            <tr>
+              <td><code>/ce:plan</code></td>
+              <td>You know what you want and need a solid blueprint</td>
+              <td><code>/ce:plan add a weekly meal planner with drag and drop</code></td>
+            </tr>
+            <tr>
+              <td><code>/ce:work</code></td>
+              <td>You have a plan and want it built properly</td>
+              <td><code>/ce:work</code> (picks up the plan it just made)</td>
+            </tr>
+            <tr>
+              <td><code>/ce:review</code></td>
+              <td>You want it to check its own work for quality</td>
+              <td><code>/ce:review</code></td>
+            </tr>
+            <tr>
+              <td><code>/ce:compound</code></td>
+              <td>You want it to remember what it learned for next time</td>
+              <td><code>/ce:compound</code></td>
+            </tr>
+            <tr>
+              <td><code>/lfg</code></td>
+              <td>All of the above in one shot &mdash; plan, build, review, done</td>
+              <td><code>/lfg add user accounts with login and signup</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="slash-modes">
+        <div class="slash-mode">
+          <div class="mode-label">Casual</div>
+          <div class="mode-desc">Just type what you want. Good for quick changes.</div>
+        </div>
+        <div class="slash-mode">
+          <div class="mode-label">Structured</div>
+          <div class="mode-desc">Brainstorm &rarr; Plan &rarr; Work &rarr; Review. Big features.</div>
+        </div>
+        <div class="slash-mode">
+          <div class="mode-label">Yolo</div>
+          <div class="mode-desc"><code>/lfg</code> and let it rip.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- TIPS -->
+  <div class="section reveal">
+    <div class="section-label">Mindset</div>
+    <h2>Three Tips</h2>
+    <div class="tips">
+      <div class="tip">
+        <div class="tip-num">01</div>
+        <div class="tip-body">
+          <p><strong>Be the movie director, not the camera operator.</strong> Say <em>what</em> you want to see, not <em>how</em> to film it.</p>
+        </div>
+      </div>
+      <div class="tip">
+        <div class="tip-num">02</div>
+        <div class="tip-body">
+          <p><strong>React honestly.</strong> "I don't like this" is a perfectly valid instruction. Follow up with what feels wrong.</p>
+        </div>
+      </div>
+      <div class="tip">
+        <div class="tip-num">03</div>
+        <div class="tip-body">
+          <p><strong>Keep going.</strong> If the first version is ugly, say so. It usually takes 2&ndash;3 rounds to get something you love.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-line"></div>
+    <p>Human After All &nbsp;// &nbsp;Harder Better Faster Stronger</p>
+  </footer>
+
+</div>
+
+<script>
+  // Intersection Observer for scroll reveals
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        // Stagger siblings slightly
+        const delay = e.target.dataset.delay || 0;
+        setTimeout(() => e.target.classList.add('visible'), delay);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.dataset.delay = Math.min(i * 60, 300);
+    io.observe(el);
+  });
+</script>
+
+</body>
+</html>

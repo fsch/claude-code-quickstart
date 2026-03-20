@@ -2,6 +2,8 @@
 
 A beautifully designed, single-page workshop guide that teaches **anyone** — no coding experience needed — how to build apps using [Claude Code](https://docs.anthropic.com/en/docs/claude-code).
 
+https://hack.schwenk.tech/
+
 > You talk. The computer builds.
 
 ## What Is This?
